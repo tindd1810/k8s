@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  #annotations:
+  #  kubernetes.io/change-cause: update revison limit history   #them reason
+spec:
+  revisionHistoryLimit: 5 #gioi han so lan rollout
+  selector:
+    matchLabels:
+      app: mysql
+  replicas: 3
+  strategy:
+    #type: Recreate       #update
+    type: RollingUpdate   #update
+    rollingUpdate:
+      #maxSurge: 1
+      maxUnavailable: 2
+  template:
+    metadata:
+      labels:
+        app: mysql
+        #track: stable
+        #track: canary
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:5.6
+        ports:
+          - containerPort: 3306
+        env:
+          - name: MYSQL_ROOT_PASSWORD
+            value: password

@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-svc
+  #namespace: tindd-study
+spec:
+  selector:
+    app: mysql      #match lable pod
+  # type: ClusterIP
+  # sessionAffinity: None
+  # sessionAffinityConfig:
+  #   clientIP:
+  #     timeoutSeconds: 10800
+  ports:
+    - port: 3006
+      targetPort: 3306
+      nodePort: 31001
+  type: NodePort

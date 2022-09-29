@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.7.9
+        ports:
+          - containerPort: 80
+        volumeMounts:
+          - mountPath: /home/tindd-hostpath
+            name: tindd-hostpath
+      - name: alpine
+        image: alpine
+        command:
+          - "/bin/sh"
+          - "-c"
+        args:
+          - "tail -f /dev/null"
+        volumeMounts:
+          - mountPath: /dala/tindd-hostpath
+            name: tindd-hostpath
+      volumes:
+        - name:  tindd-hostpath
+          hostPath:
+            path: /home/tindd-hostpath
+            

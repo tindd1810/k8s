@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+  annotations:
+    kubernetes.io/change-cause: update revison limit history   #them reason
+spec:
+  revisionHistoryLimit: 5 #gioi han so lan rollout
+  selector:
+    matchLabels:
+      app: nginx
+  replicas: 4
+  strategy:
+    type: Recreate       #update
+    # type: RollingUpdate   #update
+    # rollingUpdate:
+    #   #maxSurge: 1
+    #   maxUnavailable: 2
+  template:
+    metadata:
+      labels:
+        app: nginx
+        track: stable
+        #track: canary
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.7.9
+        livenessProbe:
+          httpGet:
+            path: /index.html
+            port: 80
+          initialDelaySeconds: 5
+          successThreshold: 1
+          failureThreshold: 5
+          periodSeconds: 10
+        readinessProbe:
+          exec:
+            command:
+              - "/bin/sh"
+              - "-c"
+              - "cat /usr/share/nginx/html/index.html"
+          initialDelaySeconds: 5
+          successThreshold: 5
+          failureThreshold: 5
+          periodSeconds: 10
+        ports:
+          - containerPort: 80
