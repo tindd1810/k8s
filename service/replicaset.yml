@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: ReplicaSet
 metadata:
   name: frontend
-  #namespace: tindd-study
   labels:
     app: nginx
     tier: frontend
@@ -18,11 +17,11 @@ spec:
         tier: frontend
     spec:
       containers:
-      - name: nginx
-        image: nginx
-        envFrom:
-          - configMapRef:
-              name: myapp
+      - name: nginx-frontend
+        image: nginx:latest
+        # envFrom:
+        #   - configMapRef:
+        #       name: myapp
         # resources:
         #   requests:
         #     cpu: "100m"
@@ -32,13 +31,13 @@ spec:
         #     memory: "500Mi"
         ports:
           - containerPort: 80
-        volumeMounts:
-          - mountPath: /tindd-configmap
-            name: tindd-configmap
-      volumes:
-        - name: tindd-configmap
-          configMap:
-            name: myapp
-            items:
-              - key: file
-                path: file
+      #   volumeMounts:
+      #     - mountPath: /tindd-configmap
+      #       name: tindd-configmap
+      # volumes:
+      #   - name: tindd-configmap
+      #     configMap:
+      #       name: myapp
+      #       items:
+      #         - key: file
+      #           path: file
