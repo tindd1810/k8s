@@ -1,0 +1,50 @@
+# Download Prometheus source
+cd ~
+wget https://github.com/prometheus/prometheus/releases/download/v2.6.0/prometheus-2.6.0.linux-amd64.tar.gz
+mkdir /opt/prometheus
+tar zxf prometheus-2.6.0.linux-amd64.tar.gz -C /opt/prometheus --strip-components=1
+
+# Creating Prometheus user
+useradd --no-create-home --shell /bin/false prometheus
+
+# Folder for Prometheus
+mkdir /etc/prometheus
+mkdir /var/lib/prometheus
+
+# Configuring Prometheus server
+cat << EOF > /etc/prometheus/prometheus.yml
+global:
+  scrape_interval:     5s
+  evaluation_interval: 5s
+scrape_configs:
+  - job_name: linux
+    static_configs:
+      - targets: ['IP.Cua.Server.Slave:9100']
+        labels:
+          alias: vesta_cp
+
+  - job_name: mysql
+    static_configs:
+      - targets: ['IP.Cua.Server.Slave:9104']
+        labels:
+          alias: vesta_cp
+EOF
+
+# Copy prometheus execution file to folder /user/local/bin
+cp /opt/prometheus/prometheus /usr/local/bin/
+cp /opt/prometheus/promtool /usr/local/bin/
+cp -r /opt/prometheus/consoles /etc/prometheus
+cp -r /opt/prometheus/console_libraries /etc/prometheus
+
+# Granting permission for Prometheus user
+chown -R prometheus:prometheus /etc/prometheus
+chown -R prometheus:prometheus /var/lib/prometheus
+chown prometheus:prometheus /usr/local/bin/prometheus
+chown prometheus:prometheus /usr/local/bin/promtool
+
+# Run prometheus server (it will handling as default port 9090)
+prometheus /usr/local/bin/prometheus \
+    --config.file /etc/prometheus/prometheus.yml \
+    --storage.tsdb.path /var/lib/prometheus/ \
+    --web.console.templates=/etc/prometheus/consoles \
+    --web.console.libraries=/etc/prometheus/console_libraries
